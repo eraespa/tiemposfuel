@@ -21,40 +21,55 @@ if response.status_code == 200:
     # Reemplazar valores nulos en 'personas' con "No disponible"
     df['personas'] = df['personas'].fillna("No disponible")
 
-    # ✅ Interpretar la primera celda como hora real de comienzo
-    hora_base_str = df['duracion'].iloc[0]  # ejemplo: "10:00"
+    # ✅ Usamos la segunda celda como la hora de inicio real
+    hora_base_str = df['duracion'].iloc[1]
     try:
         hora_inicio = datetime.strptime(hora_base_str.strip(), "%H:%M")
     except ValueError:
-        st.error("La primera celda de la columna 'duracion' debe tener el formato HH:MM")
+        st.error("La segunda celda de la columna 'duracion' debe tener el formato HH:MM")
         st.stop()
 
-    # Convertir la columna 'duracion' a timedelta para las filas restantes
+    # Convertimos toda la columna 'duracion' a timedelta
     df['duracion_td'] = pd.to_timedelta(df['duracion'], errors='coerce')
 
-    # Construir resultados
+    # Lista de resultados
     resultados = []
 
+    # Iteramos por cada fila
     for index, row in df.iterrows():
-        if index == 1:
-            hora_actual = hora_inicio
+        if index == 0:
+            # Primer fila: sin hora, se muestra sin calcular
+            resultado = {
+                'Hora Comienzo': "Sin hora",
+                'Duración': row['duracion'],
+                'Lugar': row.get('lugar', ''),
+                'Contenido': row.get('contenido', ''),
+                'Personas': row.get('personas', 'No disponible'),
+                'Acciones': row.get('acciones', ''),
+                'Misión': row.get('mision', ''),
+                'hora_dt': None  # sin cálculo de tiempo
+            }
         else:
-            duracion_anterior = df['duracion_td'].iloc[index - 1]
-            hora_actual = resultados[-1]['hora_dt'] + duracion_anterior if pd.notnull(duracion_anterior) else resultados[-1]['hora_dt']
+            if index == 1:
+                hora_actual = hora_inicio
+            else:
+                duracion_anterior = df['duracion_td'].iloc[index - 1]
+                hora_anterior = resultados[-1]['hora_dt']
+                hora_actual = hora_anterior + duracion_anterior if pd.notnull(duracion_anterior) else hora_anterior
 
-        resultado = {
-            'Hora Comienzo': hora_actual.strftime('%H:%M'),
-            'Duración': row['duracion'],
-            'Lugar': row.get('lugar', ''),
-            'Contenido': row.get('contenido', ''),
-            'Personas': row.get('personas', 'No disponible'),
-            'Acciones': row.get('acciones', ''),
-            'Misión': row.get('mision', ''),
-            'hora_dt': hora_actual  # 🛠️ Usado solo internamente para el cálculo
-        }
+            resultado = {
+                'Hora Comienzo': hora_actual.strftime('%H:%M'),
+                'Duración': row['duracion'],
+                'Lugar': row.get('lugar', ''),
+                'Contenido': row.get('contenido', ''),
+                'Personas': row.get('personas', 'No disponible'),
+                'Acciones': row.get('acciones', ''),
+                'Misión': row.get('mision', ''),
+                'hora_dt': hora_actual
+            }
         resultados.append(resultado)
 
-    # Mostrar lista de actos
+    # Mostrar resultados
     st.write("Lista de actos ordenados:")
 
     for item in resultados:
