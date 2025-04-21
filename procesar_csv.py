@@ -36,7 +36,7 @@ if response.status_code == 200:
     resultados = []
 
     for index, row in df.iterrows():
-        if index == 0:
+        if index == 1:
             hora_actual = hora_inicio
         else:
             duracion_anterior = df['duracion_td'].iloc[index - 1]
