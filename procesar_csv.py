@@ -18,13 +18,13 @@ if response.status_code == 200:
     # Convertir el CSV a un DataFrame de pandas
     data = StringIO(csv_text)
     df = pd.read_csv(data)
-    
-    # Mostrar las primeras filas del CSV para confirmar la carga
-    st.write("Primeras filas del CSV:", df.head())
 
     # Asegurarse de que los datos sean válidos
     df['hora'] = pd.to_datetime(df['hora'], format='%H:%M', errors='coerce')  # Convertir la columna 'hora' a datetime
     df['duracion'] = pd.to_timedelta(df['duracion'], errors='coerce')  # Convertir la columna 'duracion' a timedelta
+
+    # Reemplazar valores nulos en 'personas' con "No disponible"
+    df['personas'] = df['personas'].fillna("No disponible")
 
     # Lista para almacenar los resultados
     resultados = []
@@ -54,6 +54,7 @@ if response.status_code == 200:
 
     # Mostrar los resultados como una lista ordenada
     st.write("Lista de actos ordenados:")
+
     for item in resultados:
         st.write(f"**Hora**: {item['Hora']} - **Duración**: {item['Duración']} - **Lugar**: {item['Lugar']}")
         st.write(f"**Contenido**: {item['Contenido']}")
