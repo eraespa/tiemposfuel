@@ -1,3 +1,4 @@
+
 import streamlit as st
 import requests
 import pandas as pd
@@ -73,6 +74,9 @@ if response.status_code == 200:
     # Filtrar solo filas válidas en 'comienzo'
     df = df.dropna(subset=['comienzo'])
     df = df[df['comienzo'].str.strip() != '']
+
+    # Reemplazar valores vacíos o nulos en 'comienzo' con '--' para evitar NaN en pantalla
+    df['comienzo'] = df['comienzo'].fillna('--').astype(str)
 
     # Obtener hora inicial
     hora_inicio_str = str(df['comienzo'].iloc[0]).strip()
