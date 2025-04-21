@@ -65,6 +65,11 @@ response = requests.get(url)
 if response.status_code == 200:
     df = pd.read_csv(StringIO(response.text))
 
+    # Asegurarse de que la columna 'comienzo' tenga valores válidos
+    if df['comienzo'].isnull().any():
+        st.error("La columna 'comienzo' tiene valores vacíos o inválidos.")
+        st.stop()
+
     # Obtener hora inicial
     hora_inicio_str = str(df['comienzo'].iloc[0]).strip()
     try:
