@@ -1,4 +1,3 @@
-
 import streamlit as st
 import requests
 import pandas as pd
@@ -65,10 +64,15 @@ response = requests.get(url)
 if response.status_code == 200:
     df = pd.read_csv(StringIO(response.text))
 
-    # Asegurarse de que la columna 'comienzo' tenga valores válidos
-    if df['comienzo'].isnull().any():
-        st.error("La columna 'comienzo' tiene valores vacíos o inválidos.")
-        st.stop()
+    # Asegurarse de que la columna 'comienzo' no tenga valores vacíos o mal formateados
+    invalid_rows = df[df['comienzo'].isnull() | (df['comienzo'].str.strip() == '')]
+    
+    if not invalid_rows.empty:
+        st.warning(f"Se encontraron filas con valores vacíos o inválidos en la columna 'comienzo'. Estas filas se omitirán.")
+
+    # Filtrar solo filas válidas en 'comienzo'
+    df = df.dropna(subset=['comienzo'])
+    df = df[df['comienzo'].str.strip() != '']
 
     # Obtener hora inicial
     hora_inicio_str = str(df['comienzo'].iloc[0]).strip()
