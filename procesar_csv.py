@@ -1,85 +1,86 @@
-
 import streamlit as st
 import requests
 import pandas as pd
 from io import StringIO
 from datetime import datetime, timedelta
 
-# --- Fuente Red Hat (desde Google Fonts) ---
+# --- Estilos visuales usando Red Hat ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;700&display=swap');
 
-body {
+* {
     font-family: 'Red Hat Display', sans-serif;
 }
 
 .bloque {
-    font-family: 'Red Hat Display', sans-serif;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.fila {
+    display: flex;
+    align-items: baseline;
 }
 
 .hora {
     font-size: 48px;
     font-weight: 700;
-    display: inline-block;
     width: 80px;
 }
 
 .titulo {
     font-size: 24px;
     font-weight: 700;
-    display: inline-block;
-    vertical-align: top;
-    margin-left: 10px;
+    margin-left: 12px;
     text-transform: uppercase;
 }
 
 .info {
-    font-size: 16px;
-    margin-left: 90px;
-    line-height: 1.6;
+    font-size: 14px;
+    margin-left: 92px;
+    line-height: 1.1;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Cargar datos desde el CSV publicado ---
+# --- Descargar y cargar datos ---
 url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT28iAUmYbEsRIMQMjNxXU0LKJhyRqOsgUzZ3Ly2BFBfnp6ed8FJL8SYOod5q-BnoXWcUVuJtt6M7as/pub?gid=1605730138&single=true&output=csv'
 response = requests.get(url)
 
 if response.status_code == 200:
     df = pd.read_csv(StringIO(response.text))
 
-    # Preparar datos
+    # Obtener hora inicial
     hora_inicio_str = str(df['comienzo'].iloc[0]).strip()
     try:
         hora_actual = datetime.strptime(hora_inicio_str, "%H:%M:%S")
     except ValueError:
         hora_actual = datetime.strptime(hora_inicio_str, "%H:%M")
 
+    # Limpieza
     df['duracion_td'] = pd.to_timedelta(df['duracion'], errors='coerce')
-    df['personas'] = df['personas'].fillna("")
-    df['acciones'] = df['acciones'].fillna("")
-    df['mision'] = df['mision'].fillna("")
-    df['lugar'] = df['lugar'].fillna("")
+    for col in ['personas', 'acciones', 'mision', 'lugar']:
+        df[col] = df[col].fillna("").astype(str)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    # Mostrar contenido
     st.markdown("## Programa del evento", unsafe_allow_html=True)
 
     for i, row in df.iterrows():
         hora_str = hora_actual.strftime("%-H:%M")
-        duracion = str(row['duracion'])[:5]
-        lugar = row['lugar']
+        duracion = str(row['duracion'])[:5] if pd.notnull(row['duracion']) else ""
         contenido = row['contenido']
+        lugar = row['lugar']
         personas = row['personas']
         acciones = row['acciones']
         mision = row['mision']
 
         html = f"""
         <div class="bloque">
-            <div>
-                <span class="hora">{hora_str}</span>
-                <span class="titulo">{contenido}</span>
+            <div class="fila">
+                <div class="hora">{hora_str}</div>
+                <div class="titulo">{contenido}</div>
             </div>
             <div class="info">
                 {duracion}<br>
@@ -92,6 +93,7 @@ if response.status_code == 200:
         """
         st.markdown(html, unsafe_allow_html=True)
 
+        # Sumar duración si válida
         if pd.notnull(row['duracion_td']):
             hora_actual += row['duracion_td']
 else:
