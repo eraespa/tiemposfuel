@@ -17,9 +17,9 @@ df = pd.read_csv(data)
 # Verificar las columnas del DataFrame
 print("Columnas disponibles:", df.columns)
 
-# Ajustar el código para las columnas correctas
-df['hora'] = pd.to_datetime(df['hora'], format='%H:%M')  # Usar 'hora' en minúscula
-df['duracion'] = pd.to_timedelta(df['duracion'], errors='coerce')  # Usar 'duracion' en minúscula
+# Asegurarnos de que los valores en 'hora' sean válidos y convertirlos
+df['hora'] = pd.to_datetime(df['hora'], format='%H:%M', errors='coerce')  # Cambia 'errors' a 'coerce' para manejar valores inválidos
+df['duracion'] = pd.to_timedelta(df['duracion'], errors='coerce')  # Similar para duración
 
 # Lista para almacenar los resultados
 resultados = []
@@ -27,6 +27,9 @@ resultados = []
 # Iterar por cada fila y calcular la hora final
 hora_inicio = None
 for index, row in df.iterrows():
+    if pd.isnull(row['hora']):
+        print(f"Valor inválido en la columna 'hora' en la fila {index}. Se saltará esta fila.")
+        continue  # Si la hora es inválida, saltar la fila
     hora_inicio = row['hora'] if hora_inicio is None else hora_inicio
     hora_final = hora_inicio + row['duracion']
     resultados.append({
