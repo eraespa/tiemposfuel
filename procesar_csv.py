@@ -22,8 +22,8 @@ if response.status_code == 200:
     # Reemplazar valores nulos en 'personas' con "No disponible"
     df['personas'] = df['personas'].fillna("No disponible")
 
-    # Inicializar la hora de inicio con la duración del primer acto
-    hora_inicio = pd.to_timedelta(df['duracion'].iloc[0], errors='coerce')  # Hora de inicio es la duración de la primera línea
+    # Obtener la primera celda de la columna 'duracion' como hora de comienzo
+    hora_inicio = pd.to_timedelta(df['duracion'].iloc[0], errors='coerce')  # Usar la primera duración como hora de inicio
 
     # Lista para almacenar los resultados
     resultados = []
@@ -33,15 +33,15 @@ if response.status_code == 200:
         if pd.isnull(row['duracion']):
             continue  # Si 'duracion' es inválido, saltar esa fila
         
-        # Calculamos la hora de finalización del acto anterior + duración del acto
+        # Formatear la duración en horas: minutos
         hora_final = hora_inicio + pd.to_timedelta(row['duracion'], errors='coerce')
 
-        # Formateamos la hora calculada
-        hora_calculada = hora_inicio
+        # Formatear la hora para que no se muestre "0 days"
+        hora_calculada = str(hora_inicio).split(' ')[-1]  # Solo mostrar el tiempo, no los días
 
         # Agregar la información en el formato solicitado
         resultado = {
-            'Hora Calculada': str(hora_calculada),  # Convertir la hora calculada en formato de texto
+            'Hora Calculada': hora_calculada,  # Mostrar solo la hora
             'Duración': str(row['duracion']),
             'Lugar': row['lugar'],
             'Contenido': row['contenido'],
@@ -51,7 +51,7 @@ if response.status_code == 200:
         }
         resultados.append(resultado)
         
-        # Actualizamos la hora de inicio para el siguiente acto
+        # Actualizar la hora de inicio para el siguiente acto
         hora_inicio = hora_final
 
     # Mostrar los resultados como una lista ordenada
