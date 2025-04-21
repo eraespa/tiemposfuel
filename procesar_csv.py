@@ -1,4 +1,3 @@
-
 import requests
 import pandas as pd
 from datetime import timedelta
@@ -8,6 +7,12 @@ url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT28iAUmYbEsRIMQMjNxXU0LK
 
 # Descargar el archivo CSV desde la URL
 response = requests.get(url)
+if response.status_code == 200:
+    print("CSV descargado correctamente")
+else:
+    print(f"Error al descargar CSV: {response.status_code}")
+    exit()
+
 csv_text = response.text
 
 # Convertir el CSV a un DataFrame de pandas
@@ -16,8 +21,16 @@ data = StringIO(csv_text)
 df = pd.read_csv(data)
 
 # Asegurarse de que los datos sean válidos
+print("Primeras filas del DataFrame:", df.head())  # Imprimir las primeras filas para depuración
+
 df['hora'] = pd.to_datetime(df['hora'], format='%H:%M', errors='coerce')  # Convertir la columna 'hora' a datetime
 df['duracion'] = pd.to_timedelta(df['duracion'], errors='coerce')  # Convertir la columna 'duracion' a timedelta
+
+# Verificar si hay valores nulos
+if df['hora'].isnull().any():
+    print("Advertencia: Hay valores nulos en la columna 'hora'")
+if df['duracion'].isnull().any():
+    print("Advertencia: Hay valores nulos en la columna 'duracion'")
 
 # Lista para almacenar los resultados
 resultados = []
