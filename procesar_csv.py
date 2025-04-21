@@ -55,13 +55,17 @@ if response.status_code == 200:
     # Mostrar los resultados como una lista ordenada
     st.write("Lista de actos ordenados:")
 
-    for item in resultados:
-        st.write(f"**Hora**: {item['Hora']} - **Duración**: {item['Duración']} - **Lugar**: {item['Lugar']}")
-        st.write(f"**Contenido**: {item['Contenido']}")
-        st.write(f"**Personas**: {item['Personas']}")
-        st.write(f"**Acciones**: {item['Acciones']}")
-        st.write(f"**Misión**: {item['Misión']}")
-        st.write("-" * 50)
+    # Asegurarse de que se muestren todas las filas que tienen datos
+    if len(resultados) > 0:
+        for item in resultados:
+            st.write(f"**Hora**: {item['Hora']} - **Duración**: {item['Duración']} - **Lugar**: {item['Lugar']}")
+            st.write(f"**Contenido**: {item['Contenido']}")
+            st.write(f"**Personas**: {item['Personas']}")
+            st.write(f"**Acciones**: {item['Acciones']}")
+            st.write(f"**Misión**: {item['Misión']}")
+            st.write("-" * 50)
+    else:
+        st.write("No hay datos válidos para mostrar.")
 
 else:
     st.write(f"Error al descargar el CSV. Código de estado: {response.status_code}")
