@@ -1,6 +1,0 @@
-
-# Ignorar archivos de configuración del sistema operativo
-*.swp
-.DS_Store
-__pycache__/
-*.pyc
