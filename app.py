@@ -5,7 +5,7 @@ import pandas as pd
 from io import StringIO
 from datetime import datetime, timedelta
 
-# --- Estilos visuales usando Red Hat ---
+# --- Estilos visuales usando Red Hat y recuadros ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;700&display=swap');
@@ -15,7 +15,13 @@ st.markdown("""
 }
 
 .bloque {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
+}
+
+.card {
+    border: 2px solid black;
+    border-radius: 16px;
+    padding: 16px 24px;
 }
 
 .fila {
@@ -26,7 +32,9 @@ st.markdown("""
 .hora {
     font-size: 48px;
     font-weight: 700;
-    margin-right: 12px;
+    width: 80px;
+    text-align: right;
+    margin-right: 16px;
     line-height: 1;
 }
 
@@ -39,13 +47,13 @@ st.markdown("""
     font-size: 24px;
     font-weight: 700;
     text-transform: uppercase;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
     line-height: 1;
 }
 
 .info {
     font-size: 14px;
-    line-height: 1.1;
+    line-height: 1.2;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -83,16 +91,18 @@ if response.status_code == 200:
 
         html = f"""
         <div class="bloque">
-            <div class="fila">
-                <div class="hora">{hora_str}</div>
-                <div class="contenido">
-                    <div class="titulo">{contenido}</div>
-                    <div class="info">
-                        {duracion}<br>
-                        {lugar}<br>
-                        {personas}<br>
-                        {acciones}<br>
-                        {mision}
+            <div class="card">
+                <div class="fila">
+                    <div class="hora">{hora_str}</div>
+                    <div class="contenido">
+                        <div class="titulo">{contenido}</div>
+                        <div class="info">
+                            {duracion}<br>
+                            {lugar}<br>
+                            {personas}<br>
+                            {acciones}<br>
+                            {mision}
+                        </div>
                     </div>
                 </div>
             </div>
