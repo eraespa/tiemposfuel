@@ -69,35 +69,33 @@ if response.status_code == 200:
     df = pd.read_csv(StringIO(response.text))
 
     # Asegurarse de que la columna 'comienzo' no tenga valores vacíos o mal formateados
-    invalid_rows = df[df['comienzo'].isnull() | (df['comienzo'].str.strip() == '')]
-    
-    if not invalid_rows.empty:
-        st.warning(f"Se encontraron filas con valores vacíos o inválidos en la columna 'comienzo'. Estas filas se omitirán.")
-
-    # Filtrar solo filas válidas en 'comienzo'
-    df = df.dropna(subset=['comienzo'])
-    df = df[df['comienzo'].str.strip() != '']
-
-    # Reemplazar valores vacíos o nulos en 'comienzo' con '--' para evitar NaN en pantalla
     df['comienzo'] = df['comienzo'].fillna('--').astype(str)
+    df['comienzo'] = df['comienzo'].replace('', '--')
 
-    # Obtener hora inicial
+    # Filtrar filas donde 'comienzo' es '--', es decir, valores vacíos o incorrectos
+    df = df[df['comienzo'] != '--']
+
+    if df.empty:
+        st.error("No hay eventos válidos para mostrar.")
+        st.stop()
+
+    # Obtener hora inicial de la primera fila de 'comienzo'
     hora_inicio_str = str(df['comienzo'].iloc[0]).strip()
     try:
         hora_actual = datetime.strptime(hora_inicio_str, "%H:%M:%S")
     except ValueError:
         hora_actual = datetime.strptime(hora_inicio_str, "%H:%M")
 
-    # Limpieza
+    # Limpieza de datos
     df['duracion_td'] = pd.to_timedelta(df['duracion'], errors='coerce')
     for col in ['personas', 'acciones', 'mision', 'lugar']:
         df[col] = df[col].fillna("").astype(str)
 
-    # Mostrar contenido
+    # Mostrar el título
     st.markdown("## Programa del evento", unsafe_allow_html=True)
 
     for i, row in df.iterrows():
-        hora_str = hora_actual.strftime("%-H:%M")
+        hora_str = hora_actual.strftime("%-H:%M")  # Formato de hora sin ceros a la izquierda
         duracion = str(row['duracion'])[:5] if pd.notnull(row['duracion']) else ""
         contenido = row['contenido']
         lugar = row['lugar']
@@ -105,6 +103,7 @@ if response.status_code == 200:
         acciones = row['acciones']
         mision = row['mision']
 
+        # HTML para mostrar la información de cada evento
         html = f"""
         <div class="bloque">
             <div class="hora">{hora_str}</div>
@@ -124,7 +123,7 @@ if response.status_code == 200:
         """
         st.markdown(html, unsafe_allow_html=True)
 
-        # Sumar duración si válida
+        # Sumar la duración al horario actual
         if pd.notnull(row['duracion_td']):
             hora_actual += row['duracion_td']
 else:
