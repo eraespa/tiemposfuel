@@ -16,12 +16,15 @@ st.markdown("""
 
 .bloque {
     margin-bottom: 30px;
+    display: flex;
+    align-items: center;
 }
 
 .card {
     border: 2px solid black;
     border-radius: 16px;
     padding: 16px 24px;
+    flex-grow: 1;
 }
 
 .fila {
@@ -104,18 +107,16 @@ if response.status_code == 200:
 
         html = f"""
         <div class="bloque">
+            <div class="hora">{hora_str}</div>
             <div class="card">
-                <div class="fila">
-                    <div class="hora">{hora_str}</div>
-                    <div class="contenido">
-                        <div class="titulo">{contenido}</div>
-                        <div class="info">
-                            {duracion}<br>
-                            {lugar}<br>
-                            {personas}<br>
-                            {acciones}<br>
-                            {mision}
-                        </div>
+                <div class="contenido">
+                    <div class="titulo">{contenido}</div>
+                    <div class="info">
+                        {duracion}<br>
+                        {lugar}<br>
+                        {personas}<br>
+                        {acciones}<br>
+                        {mision}
                     </div>
                 </div>
             </div>
