@@ -69,10 +69,10 @@ if response.status_code == 200:
     df = pd.read_csv(StringIO(response.text))
 
     # Asegurarse de que la columna 'comienzo' no tenga valores vacíos o mal formateados
-    df['comienzo'] = df['comienzo'].fillna('--').astype(str)
-    df['comienzo'] = df['comienzo'].replace('', '--')
+    df['comienzo'] = df['comienzo'].fillna('--').astype(str)  # Reemplazar NaN por '--'
+    df['comienzo'] = df['comienzo'].replace('', '--')  # Reemplazar cadenas vacías por '--'
 
-    # Filtrar filas donde 'comienzo' es '--', es decir, valores vacíos o incorrectos
+    # Eliminar las filas donde la columna 'comienzo' es '--'
     df = df[df['comienzo'] != '--']
 
     if df.empty:
