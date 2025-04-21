@@ -1,4 +1,3 @@
-
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
@@ -15,13 +14,12 @@ from io import StringIO
 data = StringIO(csv_text)
 df = pd.read_csv(data)
 
-# Mostrar las primeras filas para verificar los datos
-print(df.head())
+# Verificar las columnas del DataFrame
+print("Columnas disponibles:", df.columns)
 
-# Suponiendo que las columnas sean 'Hora' y 'Duración'
-# Convertir las columnas 'Hora' y 'Duración' a los formatos adecuados
-df['Hora'] = pd.to_datetime(df['Hora'], format='%H:%M')  # Cambia el formato si es necesario
-df['Duración'] = pd.to_timedelta(df['Duración'], errors='coerce')
+# Ajustar el código para las columnas correctas
+df['hora'] = pd.to_datetime(df['hora'], format='%H:%M')  # Usar 'hora' en minúscula
+df['duracion'] = pd.to_timedelta(df['duracion'], errors='coerce')  # Usar 'duracion' en minúscula
 
 # Lista para almacenar los resultados
 resultados = []
@@ -29,16 +27,16 @@ resultados = []
 # Iterar por cada fila y calcular la hora final
 hora_inicio = None
 for index, row in df.iterrows():
-    hora_inicio = row['Hora'] if hora_inicio is None else hora_inicio
-    hora_final = hora_inicio + row['Duración']
+    hora_inicio = row['hora'] if hora_inicio is None else hora_inicio
+    hora_final = hora_inicio + row['duracion']
     resultados.append({
         'Hora de Inicio': hora_inicio.strftime('%H:%M'),
         'Hora de Finalización': hora_final.strftime('%H:%M'),
-        'Lugar': row['Lugar'],  # Suponiendo que haya una columna Lugar
-        'Contenido': row['Contenido'],  # Suponiendo que haya una columna Contenido
-        'Personas': row['Personas'],  # Suponiendo que haya una columna Personas
-        'Acciones': row['Acciones'],  # Suponiendo que haya una columna Acciones
-        'Misión': row['Misión']  # Suponiendo que haya una columna Misión
+        'Lugar': row['lugar'],  # Usar 'lugar' en minúscula
+        'Contenido': row['contenido'],  # Usar 'contenido' en minúscula
+        'Personas': row['personas'],  # Usar 'personas' en minúscula
+        'Acciones': row['acciones'],  # Usar 'acciones' en minúscula
+        'Misión': row['mision']  # Usar 'mision' en minúscula
     })
     hora_inicio = hora_final  # Actualizar la hora de inicio para el siguiente acto
 
