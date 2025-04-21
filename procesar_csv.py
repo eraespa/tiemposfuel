@@ -21,13 +21,14 @@ if response.status_code == 200:
     # Reemplazar valores nulos en 'personas' con "No disponible"
     df['personas'] = df['personas'].fillna("No disponible")
 
-    # ✅ Usamos la segunda celda como la hora de inicio real
-    hora_base_str = df['duracion'].iloc[1]
-    try:
-        hora_inicio = datetime.strptime(hora_base_str.strip(), "%H:%M")
-    except ValueError:
-        st.error("La segunda celda de la columna 'duracion' debe tener el formato HH:MM")
+    # ✅ Usar la segunda celda como la hora de comienzo (en formato timedelta)
+    hora_base_td = pd.to_timedelta(df['duracion'].iloc[1], errors='coerce')
+    if pd.isnull(hora_base_td):
+        st.error("La segunda celda de la columna 'duracion' debe tener el formato HH:MM:SS")
         st.stop()
+
+    # Convertir timedelta a datetime para operaciones
+    hora_inicio = datetime.combine(datetime.today(), datetime.min.time()) + hora_base_td
 
     # Convertimos toda la columna 'duracion' a timedelta
     df['duracion_td'] = pd.to_timedelta(df['duracion'], errors='coerce')
@@ -35,10 +36,8 @@ if response.status_code == 200:
     # Lista de resultados
     resultados = []
 
-    # Iteramos por cada fila
     for index, row in df.iterrows():
         if index == 0:
-            # Primer fila: sin hora, se muestra sin calcular
             resultado = {
                 'Hora Comienzo': "Sin hora",
                 'Duración': row['duracion'],
@@ -47,7 +46,7 @@ if response.status_code == 200:
                 'Personas': row.get('personas', 'No disponible'),
                 'Acciones': row.get('acciones', ''),
                 'Misión': row.get('mision', ''),
-                'hora_dt': None  # sin cálculo de tiempo
+                'hora_dt': None
             }
         else:
             if index == 1:
